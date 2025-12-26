@@ -160,8 +160,8 @@ function onReachMidnight() {
     if (stage === "ontime") startAfterMusic();
   }, ONTIME_DURATION);
 
-  switchToBirthdayScreen();
-  startConfettiContinuous();
+  switchToBirthdayScreen(); // This will now handle the redirect immediately
+  // startConfettiContinuous(); // No need for confetti here if we redirect
 }
 
 function startAfterMusic() {
@@ -174,40 +174,26 @@ function startAfterMusic() {
   musicAfter.play().catch(() => autoplayNote?.removeAttribute("hidden"));
 }
 
-// ===== SCREEN =====
+// ===== SCREEN / REDIRECT =====
 function switchToBirthdayScreen() {
-  const tpl = document
-    .getElementById("birthdayTemplate")
-    .content.cloneNode(true);
-  document.getElementById("app").replaceWith(tpl);
-  const giftBtn = document.getElementById("giftBtn");
-  if (giftBtn) {
-    giftBtn.addEventListener("click", () => {
-      musicAfter.pause();
-      startConfettiContinuous();
-      // Logic to determine how to open gift page
-      // 1. Check if we are in a "/view/:id" route (Database mode)
-      const pathParts = window.location.pathname.split('/');
-      const viewIndex = pathParts.indexOf('view');
-      
-      if (viewIndex !== -1 && pathParts[viewIndex + 1]) {
-          const id = pathParts[viewIndex + 1];
-          // Open gift.html with id param
-          window.open("gift.html?id=" + id, "_blank");
-      } 
-      // 2. Check for legacy ?data= param
-      else {
-          const params = new URLSearchParams(window.location.search);
-          const data = params.get('data');
-          if (data) {
-              window.open("gift.html?data=" + data, "_blank");
-          } else {
-              // 3. Fallback (Local Preview or plain open)
-              window.open("gift.html", "_blank");
-          }
-      }
-    });
-  }
+    // Determine Redirect URL
+    let targetUrl = "gift.html";
+    
+    // 1. Check DB Mode (/view/:id)
+    const pathParts = window.location.pathname.split('/');
+    const viewIndex = pathParts.indexOf('view');
+    if (viewIndex !== -1 && pathParts[viewIndex + 1]) {
+        targetUrl += "?id=" + pathParts[viewIndex + 1];
+    } else {
+        // 2. Legacy Check
+        const params = new URLSearchParams(window.location.search);
+        const data = params.get('data');
+        if (data) targetUrl += "?data=" + data;
+    }
+
+    // Perform Redirect (Replace current page so back button works or _self)
+    // User requested "redirect", so we likely want to replace the current window content.
+    window.location.href = targetUrl;
 }
 
 // ===== CONFETTI =====
