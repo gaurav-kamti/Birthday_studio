@@ -179,7 +179,7 @@ function startAfterMusic() {
 // ===== SCREEN / REDIRECT =====
 function switchToBirthdayScreen() {
     // Determine Redirect URL
-    let targetUrl = "gift.html";
+    let targetUrl = "/gift.html";
     
     // 1. Check DB Mode (/view/:id)
     const pathParts = window.location.pathname.split('/');

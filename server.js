@@ -68,10 +68,14 @@ app.post('/api/create', async (req, res) => {
 // 2. Get Birthday
 app.get('/api/get/:id', async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ error: 'Invalid ID format' });
+        }
         const data = await Birthday.findById(req.params.id);
         if (!data) return res.status(404).json({ error: 'Not found' });
         res.json(data);
     } catch (err) {
+        console.error("Get Error:", err);
         res.status(500).json({ error: 'Server error' });
     }
 });
