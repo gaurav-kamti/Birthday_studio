@@ -10,8 +10,7 @@ if (storedDate) {
     tomorrow.setHours(15, 15, 0, 0);
     TARGET = tomorrow;
 }
-    TARGET = tomorrow;
-}
+
 console.log("🕒 TARGET DATE DETECTED:", TARGET);
 const ONTIME_DURATION = 30 * 1000;
 

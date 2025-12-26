@@ -42,48 +42,64 @@ function fileToBase64(file) {
 
 // Handle music uploads
 document.getElementById('musicBefore').addEventListener('change', async (e) => {
+    const textEl = e.target.parentElement.querySelector('.upload-text');
     if (e.target.files[0]) {
+        if(textEl) textEl.textContent = '⏳ Uploading...';
         uploadedFiles.musicBefore = await fileToBase64(e.target.files[0]);
+        if(textEl) textEl.textContent = '✅ Uploaded: ' + e.target.files[0].name;
     }
 });
 
 document.getElementById('musicOnTime').addEventListener('change', async (e) => {
+    const textEl = e.target.parentElement.querySelector('.upload-text');
     if (e.target.files[0]) {
+        if(textEl) textEl.textContent = '⏳ Uploading...';
         uploadedFiles.musicOnTime = await fileToBase64(e.target.files[0]);
+        if(textEl) textEl.textContent = '✅ Uploaded: ' + e.target.files[0].name;
     }
 });
 
 document.getElementById('musicAfter').addEventListener('change', async (e) => {
+    const textEl = e.target.parentElement.querySelector('.upload-text');
     if (e.target.files[0]) {
+        if(textEl) textEl.textContent = '⏳ Uploading...';
         uploadedFiles.musicAfter = await fileToBase64(e.target.files[0]);
+        if(textEl) textEl.textContent = '✅ Uploaded: ' + e.target.files[0].name;
     }
 });
 
 // Handle photo uploads
 document.getElementById('photos').addEventListener('change', async (e) => {
     const preview = document.getElementById('photoPreview');
+    const textEl = e.target.parentElement.querySelector('.upload-text');
     
-    for (let file of e.target.files) {
-        const base64 = await fileToBase64(file);
-        const index = uploadedFiles.photos.length;
-        uploadedFiles.photos.push(base64);
+    if (e.target.files.length > 0) {
+        if(textEl) textEl.textContent = `⏳ Processing ${e.target.files.length} photos...`;
         
-        const wrapper = document.createElement('div');
-        wrapper.className = 'preview-wrapper';
-        wrapper.dataset.index = index;
+        for (let file of e.target.files) {
+            const base64 = await fileToBase64(file);
+            const index = uploadedFiles.photos.length;
+            uploadedFiles.photos.push(base64);
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'preview-wrapper';
+            wrapper.dataset.index = index;
+            
+            const img = document.createElement('img');
+            img.src = base64;
+            img.className = 'preview-item';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = () => removePhoto(index);
+            
+            wrapper.appendChild(img);
+            wrapper.appendChild(removeBtn);
+            preview.appendChild(wrapper);
+        }
         
-        const img = document.createElement('img');
-        img.src = base64;
-        img.className = 'preview-item';
-        
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-btn';
-        removeBtn.innerHTML = '×';
-        removeBtn.onclick = () => removePhoto(index);
-        
-        wrapper.appendChild(img);
-        wrapper.appendChild(removeBtn);
-        preview.appendChild(wrapper);
+        if(textEl) textEl.textContent = `✅ Added ${e.target.files.length} photos (Total: ${uploadedFiles.photos.length})`;
     }
     
     // Clear the input so same file can be selected again
@@ -127,28 +143,35 @@ function renderPhotoPreviews() {
 // Handle meme uploads
 document.getElementById('memes').addEventListener('change', async (e) => {
     const preview = document.getElementById('memePreview');
+    const textEl = e.target.parentElement.querySelector('.upload-text');
     
-    for (let file of e.target.files) {
-        const base64 = await fileToBase64(file);
-        const index = uploadedFiles.memes.length;
-        uploadedFiles.memes.push(base64);
+    if (e.target.files.length > 0) {
+        if(textEl) textEl.textContent = `⏳ Processing ${e.target.files.length} memes...`;
+
+        for (let file of e.target.files) {
+            const base64 = await fileToBase64(file);
+            const index = uploadedFiles.memes.length;
+            uploadedFiles.memes.push(base64);
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'preview-wrapper';
+            wrapper.dataset.index = index;
+            
+            const img = document.createElement('img');
+            img.src = base64;
+            img.className = 'preview-item';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = () => removeMeme(index);
+            
+            wrapper.appendChild(img);
+            wrapper.appendChild(removeBtn);
+            preview.appendChild(wrapper);
+        }
         
-        const wrapper = document.createElement('div');
-        wrapper.className = 'preview-wrapper';
-        wrapper.dataset.index = index;
-        
-        const img = document.createElement('img');
-        img.src = base64;
-        img.className = 'preview-item';
-        
-        const removeBtn = document.createElement('button');
-        removeBtn.className = 'remove-btn';
-        removeBtn.innerHTML = '×';
-        removeBtn.onclick = () => removeMeme(index);
-        
-        wrapper.appendChild(img);
-        wrapper.appendChild(removeBtn);
-        preview.appendChild(wrapper);
+        if(textEl) textEl.textContent = `✅ Added ${e.target.files.length} memes`;
     }
     
     // Clear the input so same file can be selected again
