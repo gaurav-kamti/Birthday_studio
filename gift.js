@@ -429,7 +429,7 @@ document.querySelectorAll(".next-btn").forEach((btn) => {
     });
     showStage(1);
     startMemeStage();
-} // End applyConfig
+
 
 // Start the app
 initGift();
