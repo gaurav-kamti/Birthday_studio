@@ -10,6 +10,9 @@ if (storedDate) {
     tomorrow.setHours(15, 15, 0, 0);
     TARGET = tomorrow;
 }
+    TARGET = tomorrow;
+}
+console.log("🕒 TARGET DATE DETECTED:", TARGET);
 const ONTIME_DURATION = 30 * 1000;
 
 const musicBefore = document.getElementById("musicBefore");
@@ -243,15 +246,19 @@ function startConfettiContinuous() {
 (function init() {
   const now = Date.now();
   const targetTime = TARGET.getTime();
+  console.log("Start Check: Now=", now, "Target=", targetTime);
 
   if (now >= targetTime + ONTIME_DURATION) {
+    console.log("Branch: AFTER (Way past birthday)");
     // AFTER stage
     startAfterMusic();
     switchToBirthdayScreen();
   } else if (now >= targetTime) {
+    console.log("Branch: ONTIME (Just past birthday)");
     // ONTIME stage
     onReachMidnight();
   } else {
+    console.log("Branch: BEFORE (Counting down)");
     // BEFORE stage
     startBeforeMusic();
     const timer = setInterval(() => {
