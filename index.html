@@ -634,46 +634,65 @@
             particlesContainer.appendChild(particle);
         }
 
-        // URL Config Parsing
-        (function checkForConfig() {
-            const params = new URLSearchParams(window.location.search);
-            const data = params.get('data');
-            if (data) {
+        // URL/Route Config Parsing
+        (async function init() {
+            // Check if we are in a "View" route (e.g. /view/:id) via pathname
+            // OR check for ?id= query param if we used that.
+            // Server.js serves index.html for /view/:id, so window.location.pathname will be /view/123
+            
+            const pathParts = window.location.pathname.split('/');
+            const viewIndex = pathParts.indexOf('view');
+            
+            // Priority 1: Backend ID
+            if (viewIndex !== -1 && pathParts[viewIndex + 1]) {
+                const id = pathParts[viewIndex + 1];
                 try {
-                    const json = decodeURIComponent(escape(atob(data)));
-                    const config = JSON.parse(json);
+                    const res = await fetch('/api/get/' + id);
+                    if (!res.ok) throw new Error('Not found');
+                    const config = await res.json();
                     
-                    // Override Page Content for Index
-                    if (config.d) {
-                        // Store config for gift page
-                        localStorage.setItem('birthday_share_config', JSON.stringify(config));
+                    // Normalize backend config to frontend expectations if they differ
+                    // Backend: recipientName, birthdayDate, etc.
+                    // Frontend 'config' object expected short keys? 
+                    // Let's coerce to the keys our gift.js expects, OR update gift.js to handle full keys.
+                    // Let's standardise on the "Full Keys" from the DB Schema now, it's cleaner.
+                    
+                    // Store for gift page
+                    localStorage.setItem('birthday_share_config', JSON.stringify(config));
+                    
+                    // Update Index UI
+                     if (config.recipientName) {
+                        document.querySelector('h1').textContent = `Happy Birthday ${config.recipientName}`;
+                        document.querySelector('.subtitle').textContent = `Countdown to your special day, ${config.recipientName}!`;
+                        document.title = `Happy Birthday ${config.recipientName}`;
                         
-                        // Update Date Logic - we need to inject this into birthday-countdown.js variables roughly
-                        // But since birthday-countdown.js runs on load, we might be too late if we don't reload or patch.
-                        // Actually, birthday-countdown.js is external.
-                        // We will store it in localStorage so birthday-countdown.js can pick it up if modified,
-                        // OR we modify DOM elements if the script supports it.
-                        
-                        // Let's rely on localStorage 'birthday_config' which we will update birthday-countdown.js to read.
-                        localStorage.setItem('birthday_target_date', config.d);
-                        localStorage.setItem('birthday_recipient', config.n);
-                        localStorage.setItem('birthday_theme', config.t || 'galaxy');
-                        
-                        // Update UI immediately
-                        document.querySelector('h1').textContent = `Happy Birthday ${config.n}`;
-                        document.querySelector('.subtitle').textContent = `Countdown to your special day, ${config.n}!`;
-                        document.title = `Happy Birthday ${config.n}`;
-                        
-                        // Apply Theme
-                        if (config.t) {
-                            /* We need to apply theme colors. This is tricky without the theme map.
-                               Let's try to infer or just set a class if we had one.
-                               For now, we rely on the JS having logic.
-                            */
-                        }
-                    }
+                        // Update Date
+                         localStorage.setItem('birthday_target_date', config.birthdayDate);
+                     }
+
                 } catch (e) {
-                    console.error("Invalid config data", e);
+                    console.error("Failed to load birthday:", e);
+                }
+            } 
+            // Priority 2: Text-based URL param (legacy or fallback)
+            else {
+                const params = new URLSearchParams(window.location.search);
+                const data = params.get('data');
+                if (data) {
+                    try {
+                        const json = decodeURIComponent(escape(atob(data)));
+                        const config = JSON.parse(json);
+                        // Convert short keys to full keys for consistency if we can, or just save as is.
+                        // For now just save it.
+                         localStorage.setItem('birthday_share_config', JSON.stringify(config));
+                         
+                         if (config.n) {
+                            document.querySelector('h1').textContent = `Happy Birthday ${config.n}`;
+                            document.querySelector('.subtitle').textContent = `Countdown to your special day, ${config.n}!`;
+                            document.querySelector('title').textContent = `Happy Birthday ${config.n}`;
+                            localStorage.setItem('birthday_target_date', config.d);
+                         }
+                    } catch(e) {}
                 }
             }
         })();

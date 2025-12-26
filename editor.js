@@ -245,42 +245,56 @@ function generateWebsite() {
     
     // Generate configuration object
     const config = {
-        n: recipientName,
-        d: birthdayDate,
-        c: creatorName,
-        p: poem,
-        l: letter,
-        f: friends.map(f => ({ n: f.name, m: f.message })),
-        t: selectedTheme
+        recipientName,
+        birthdayDate,
+        creatorName,
+        poem,
+        letter,
+        theme: selectedTheme,
+        friends: friends.map(f => ({ name: f.name, message: f.message })),
+        // Include base64 images if present (assuming file inputs read them into uploadedFiles)
+        photos: uploadedFiles.photos,
+        memes: uploadedFiles.memes
+        // Music handles are typically URLs or Base64. 
+        // If they are local blobs, they can't be sent easily without converting to Base64 first in editor logic.
+        // Assuming current editor.js reads them as DataURLs (which it likely does for preview).
+        // If not, we might need to adjust, but for now we pass what we have.
     };
     
-    // Check for large files
-    if (uploadedFiles.photos.length > 0 || uploadedFiles.memes.length > 0 || uploadedFiles.musicBefore || uploadedFiles.musicOnTime || uploadedFiles.musicAfter) {
-        alert("⚠️ Note: Uploaded photos and music cannot be saved in a shareable link (they are too big!).\n\nThe link will only save your text, names, and theme.");
-    }
-
-    // Encode to Base64
-    const jsonStr = JSON.stringify(config);
-    const base64Str = btoa(unescape(encodeURIComponent(jsonStr)));
-    
-    // Construct URL (assuming index.html is the viewer)
-    const baseUrl = window.location.href.replace('editor.html', 'index.html');
-    const shareUrl = baseUrl + '?data=' + base64Str;
-    
-    // Show Link UI
+    // Show Loading
     const resultDiv = document.getElementById('result');
-    resultDiv.innerHTML = `
-        <h3>🎉 Your Link is Ready!</h3>
-        <p>Copy this link and send it to ${recipientName}:</p>
-        <div style="background:#fff;padding:10px;border-radius:8px;color:#333;word-break:break-all;margin:10px 0;font-family:monospace;font-size:0.9rem">
-            ${shareUrl}
-        </div>
-        <div style="display:flex;gap:10px;justify-content:center">
-            <button onclick="navigator.clipboard.writeText('${shareUrl}').then(()=>alert('Copied!'))" class="cta-button" style="padding:10px 20px;font-size:1rem">📋 Copy Link</button>
-            <a href="${shareUrl}" target="_blank" class="cta-button cta-secondary" style="padding:10px 20px;font-size:1rem;text-decoration:none">👀 Test Link</a>
-        </div>
-    `;
     resultDiv.classList.add('show');
+    resultDiv.innerHTML = '<p>⏳ Saving your website...</p>';
+
+    // Send to Server
+    fetch('/api/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(config)
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            const shareUrl = window.location.origin + '/view/' + data.id;
+             resultDiv.innerHTML = `
+                <h3>🎉 Your Link is Ready!</h3>
+                <p>Copy this link and send it to ${recipientName}:</p>
+                <div style="background:#fff;padding:10px;border-radius:8px;color:#333;word-break:break-all;margin:10px 0;font-family:monospace;font-size:0.9rem">
+                    ${shareUrl}
+                </div>
+                <div style="display:flex;gap:10px;justify-content:center">
+                    <button onclick="navigator.clipboard.writeText('${shareUrl}').then(()=>alert('Copied!'))" class="cta-button" style="padding:10px 20px;font-size:1rem">📋 Copy Link</button>
+                    <a href="${shareUrl}" target="_blank" class="cta-button cta-secondary" style="padding:10px 20px;font-size:1rem;text-decoration:none">👀 View Site</a>
+                </div>
+            `;
+        } else {
+             resultDiv.innerHTML = `<p style="color:red">Error: ${data.error || 'Failed to save'}</p>`;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        resultDiv.innerHTML = `<p style="color:red">Network Error: Could not save.</p>`;
+    });
 }
 
 

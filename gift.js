@@ -30,22 +30,22 @@ function getAppConfig() {
 const config = getAppConfig() || {};
 
 // 3. Apply Theme
-if (config.t && themeColors[config.t]) {
-    const t = themeColors[config.t];
+const configTheme = config.theme || config.t;
+if (configTheme && themeColors[configTheme]) {
+    const t = themeColors[configTheme];
     document.documentElement.style.setProperty('--accent-pink', t.primary);
     document.documentElement.style.setProperty('--accent-pink-2', t.secondary);
 }
 
 // 4. Hydrate Content
-if (config.n) {
+const rName = config.recipientName || config.n;
+if (rName) {
     // Update recipient name in DOM if it exists (stage 1 & 6)
-    // We do this via querySelector on load usually, but we can try here or update constants
     setTimeout(() => {
        const h1s = document.querySelectorAll('h1');
        h1s.forEach(h => {
-           if(h.textContent.includes('Tulip')) h.textContent = h.textContent.replace('Tulip', config.n);
+           if(h.textContent.includes('Tulip')) h.textContent = h.textContent.replace('Tulip', rName);
        });
-       const h2s = document.querySelectorAll('h2'); // for stage 6
     }, 100);
 }
 
@@ -66,7 +66,9 @@ const memes = [
   "image/tenor (1).gif",
 ];
 
-const friendMessages = config.f && config.f.length ? config.f.map(f => ({ name: f.n, text: f.m })) : [
+const friendMessages = (config.friends || config.f) ? 
+    (config.friends || config.f).map(f => ({ name: f.name || f.n, text: f.message || f.m })) 
+    : [
   {
     name: "Aarav",
     text: "Happy birthday! You light up every room — keep shining ✨",
@@ -116,12 +118,12 @@ const photos = [
   },
 ];
 
-const poemText = config.p || `तेरी हँसी में खिले हैं मेरे मौसम के सारे फूल,
+const poemText = config.poem || config.p || `तेरी हँसी में खिले हैं मेरे मौसम के सारे फूल,
 तेरी नज़र से ही मिलता है दिल को अपना उसूल,
 थाम ले हाथ मेरा, चलें ख़्वाबों की उस राह पर,
 जहाँ तू हो, मैं रहूँ—और बाकी दुनिया सब फ़ज़ूल।`;
 
-const letterText = config.l || `Dear Jaan,
+const letterText = config.letter || config.l || `Dear Jaan,
 
 Tumhare special din pe bas yeh kehna hai ki tum meri zindagi ka sabse khoobsurat hissa ho.
 Tum meri muskaan, mera safe place, aur meri sabse pyaari adventure ho.
