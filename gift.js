@@ -214,27 +214,11 @@ function cuteClickSpark(btn) {
     const r = btn.getBoundingClientRect();
     sp.style.left = r.left + r.width * Math.random() + "px";
     sp.style.top = r.top + r.height * Math.random() * 0.6 + "px";
-    document.body.appendChild(sp);
+        document.body.appendChild(sp);
     setTimeout(() => sp.remove(), 900);
   }
 }
 
-async function fetchRemoteMessages() {
-  try {
-    const res = await fetch("/.netlify/functions/getMessages");
-    if (!res.ok) throw new Error("Network error");
-    const data = await res.json();
-    // Map to your display shape
-    return data.map((d) => ({
-      name: d.name,
-      text: d.message,
-      createdAt: d.createdAt,
-    }));
-  } catch (e) {
-    console.warn("Unable to fetch remote messages:", e);
-    return [];
-  }
-}
 
 /* ---- Stage 1: Meme Explosion ---- */
 let memeInterval = null;
@@ -301,6 +285,7 @@ let galleryIndex = 0;
 function startGallery() {
   const imgEl = document.getElementById("galleryImg");
   const capEl = document.getElementById("galleryCaption");
+  imgEl.style.display = 'block'; // Unhide
   imgEl.src = photos[0].src;
   capEl.textContent = photos[0].caption;
   galleryIndex = 0;
