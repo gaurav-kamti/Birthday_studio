@@ -243,26 +243,47 @@ function generateWebsite() {
     
     collectFriendMessages();
     
-    // Generate both pages
-    const giftHTML = generateGiftHTML(recipientName, creatorName, poem, letter, friends, uploadedFiles.photos, uploadedFiles.memes, uploadedFiles.musicAfter, birthdayDate, selectedTheme);
-    const indexHTML = generateIndexHTML(recipientName, birthdayDate, creatorName, giftHTML, selectedTheme);
+    // Generate configuration object
+    const config = {
+        n: recipientName,
+        d: birthdayDate,
+        c: creatorName,
+        p: poem,
+        l: letter,
+        f: friends.map(f => ({ n: f.name, m: f.message })),
+        t: selectedTheme
+    };
     
-    // Open new window and write content
-    generatedWindow = window.open('', '_blank');
-    generatedWindow.document.write(indexHTML);
-    generatedWindow.document.close();
+    // Check for large files
+    if (uploadedFiles.photos.length > 0 || uploadedFiles.memes.length > 0 || uploadedFiles.musicBefore || uploadedFiles.musicOnTime || uploadedFiles.musicAfter) {
+        alert("⚠️ Note: Uploaded photos and music cannot be saved in a shareable link (they are too big!).\n\nThe link will only save your text, names, and theme.");
+    }
+
+    // Encode to Base64
+    const jsonStr = JSON.stringify(config);
+    const base64Str = btoa(unescape(encodeURIComponent(jsonStr)));
     
-    // Show success message
-    document.getElementById('result').classList.add('show');
+    // Construct URL (assuming index.html is the viewer)
+    const baseUrl = window.location.href.replace('editor.html', 'index.html');
+    const shareUrl = baseUrl + '?data=' + base64Str;
+    
+    // Show Link UI
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <h3>🎉 Your Link is Ready!</h3>
+        <p>Copy this link and send it to ${recipientName}:</p>
+        <div style="background:#fff;padding:10px;border-radius:8px;color:#333;word-break:break-all;margin:10px 0;font-family:monospace;font-size:0.9rem">
+            ${shareUrl}
+        </div>
+        <div style="display:flex;gap:10px;justify-content:center">
+            <button onclick="navigator.clipboard.writeText('${shareUrl}').then(()=>alert('Copied!'))" class="cta-button" style="padding:10px 20px;font-size:1rem">📋 Copy Link</button>
+            <a href="${shareUrl}" target="_blank" class="cta-button cta-secondary" style="padding:10px 20px;font-size:1rem;text-decoration:none">👀 Test Link</a>
+        </div>
+    `;
+    resultDiv.classList.add('show');
 }
 
-function openWebsite() {
-    if (generatedWindow && !generatedWindow.closed) {
-        generatedWindow.focus();
-    } else {
-        alert('Please generate the website first!');
-    }
-}
+
 
 function showPreview() {
     const recipientName = document.getElementById('recipientName').value || 'Special Person';

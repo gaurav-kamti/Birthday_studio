@@ -36,13 +36,21 @@ This tool lets you create a customized birthday countdown website with music, ph
    - Click "+ Add Friend Message".
    - Enter friend's name and their wish.
 
-8. **Generate Website**
+8. **Get Your Link**
    - Click "Generate Birthday Website".
-   - A new window will open with your customized website.
+   - A shareable link will be generated (e.g., `.../index.html?data=...`).
+   - Copy this link.
 
-## Tips
+## Important Note
 
-- All uploaded files are embedded directly into the website, so it is self-contained.
+**Images & Music Limitation**:
+Because this tool creates a direct link without a server, **uploaded photos and music cannot be saved in the link**.
+- The link will only save your **Names, Dates, Messages, Poem, and Theme**.
+- If you want to include custom photos, you must use the manual download & upload method.
+
+## Sharing
+
+Simply send the generated link to the birthday person!
 - The generated website allows you to bookmark it or share the URL immediately.
 - Ensure you upload photos and memes for the best experience.
 

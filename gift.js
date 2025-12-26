@@ -1,4 +1,55 @@
 /* ========= Configuration ========= */
+// 1. Theme Configuration
+const themeColors = {
+    purple: { primary: '#667eea', secondary: '#764ba2' },
+    pink: { primary: '#ff6b9e', secondary: '#ffa6c1' },
+    blue: { primary: '#4facfe', secondary: '#00f2fe' },
+    sunset: { primary: '#fa709a', secondary: '#fee140' },
+    green: { primary: '#0ba360', secondary: '#3cba92' },
+    galaxy: { primary: '#667eea', secondary: '#ff6b9e' }
+};
+
+// 2. Parse URL/Storage Config
+function getAppConfig() {
+    const params = new URLSearchParams(window.location.search);
+    const data = params.get('data');
+    if (data) {
+        try {
+            const json = decodeURIComponent(escape(atob(data)));
+            return JSON.parse(json);
+        } catch (e) { console.error(e); }
+    }
+    // Fallback to localStorage from index.html (if navigated from there)
+    try {
+        const stored = localStorage.getItem('birthday_share_config');
+        if (stored) return JSON.parse(stored);
+    } catch(e) {}
+    return null;
+}
+
+const config = getAppConfig() || {};
+
+// 3. Apply Theme
+if (config.t && themeColors[config.t]) {
+    const t = themeColors[config.t];
+    document.documentElement.style.setProperty('--accent-pink', t.primary);
+    document.documentElement.style.setProperty('--accent-pink-2', t.secondary);
+}
+
+// 4. Hydrate Content
+if (config.n) {
+    // Update recipient name in DOM if it exists (stage 1 & 6)
+    // We do this via querySelector on load usually, but we can try here or update constants
+    setTimeout(() => {
+       const h1s = document.querySelectorAll('h1');
+       h1s.forEach(h => {
+           if(h.textContent.includes('Tulip')) h.textContent = h.textContent.replace('Tulip', config.n);
+       });
+       const h2s = document.querySelectorAll('h2'); // for stage 6
+    }, 100);
+}
+
+
 const bgm = document.getElementById("bgmSong");
 // your one BGM file
 bgm.loop = true;
@@ -15,7 +66,7 @@ const memes = [
   "image/tenor (1).gif",
 ];
 
-const friendMessages = [
+const friendMessages = config.f && config.f.length ? config.f.map(f => ({ name: f.n, text: f.m })) : [
   {
     name: "Aarav",
     text: "Happy birthday! You light up every room — keep shining ✨",
@@ -65,12 +116,12 @@ const photos = [
   },
 ];
 
-const poemText = `तेरी हँसी में खिले हैं मेरे मौसम के सारे फूल,
+const poemText = config.p || `तेरी हँसी में खिले हैं मेरे मौसम के सारे फूल,
 तेरी नज़र से ही मिलता है दिल को अपना उसूल,
 थाम ले हाथ मेरा, चलें ख़्वाबों की उस राह पर,
 जहाँ तू हो, मैं रहूँ—और बाकी दुनिया सब फ़ज़ूल।`;
 
-const letterText = `Dear Jaan,
+const letterText = config.l || `Dear Jaan,
 
 Tumhare special din pe bas yeh kehna hai ki tum meri zindagi ka sabse khoobsurat hissa ho.
 Tum meri muskaan, mera safe place, aur meri sabse pyaari adventure ho.

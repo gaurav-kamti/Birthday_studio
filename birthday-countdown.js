@@ -1,10 +1,15 @@
-// Set target to tomorrow at 3:15 PM for demo purposes
-const now = new Date();
-const tomorrow = new Date(now);
-tomorrow.setDate(now.getDate() + 1);
-tomorrow.setHours(15, 15, 0, 0);
-
-const TARGET = tomorrow;
+// Set target to tomorrow at 3:15 PM for demo purposes, UNLESS override exists
+let TARGET = new Date();
+const storedDate = localStorage.getItem('birthday_target_date');
+if (storedDate) {
+    TARGET = new Date(storedDate);
+} else {
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    tomorrow.setHours(15, 15, 0, 0);
+    TARGET = tomorrow;
+}
 const ONTIME_DURATION = 30 * 1000;
 
 const musicBefore = document.getElementById("musicBefore");
@@ -180,7 +185,16 @@ function switchToBirthdayScreen() {
     giftBtn.addEventListener("click", () => {
       musicAfter.pause();
       startConfettiContinuous();
-      window.open("gift.html", "_blank");
+      // Pass the config to gift.html? Or relies on localStorage?
+      // Since gift.html is separate, we need to pass data.
+      // If we are in "Link Mode", we should open gift.html?data=...
+      const params = new URLSearchParams(window.location.search);
+      const data = params.get('data');
+      if (data) {
+          window.open("gift.html?data=" + data, "_blank");
+      } else {
+          window.open("gift.html", "_blank");
+      }
     });
   }
 }

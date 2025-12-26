@@ -633,6 +633,50 @@
             particle.style.animationDuration = (15 + Math.random() * 10) + 's';
             particlesContainer.appendChild(particle);
         }
+
+        // URL Config Parsing
+        (function checkForConfig() {
+            const params = new URLSearchParams(window.location.search);
+            const data = params.get('data');
+            if (data) {
+                try {
+                    const json = decodeURIComponent(escape(atob(data)));
+                    const config = JSON.parse(json);
+                    
+                    // Override Page Content for Index
+                    if (config.d) {
+                        // Store config for gift page
+                        localStorage.setItem('birthday_share_config', JSON.stringify(config));
+                        
+                        // Update Date Logic - we need to inject this into birthday-countdown.js variables roughly
+                        // But since birthday-countdown.js runs on load, we might be too late if we don't reload or patch.
+                        // Actually, birthday-countdown.js is external.
+                        // We will store it in localStorage so birthday-countdown.js can pick it up if modified,
+                        // OR we modify DOM elements if the script supports it.
+                        
+                        // Let's rely on localStorage 'birthday_config' which we will update birthday-countdown.js to read.
+                        localStorage.setItem('birthday_target_date', config.d);
+                        localStorage.setItem('birthday_recipient', config.n);
+                        localStorage.setItem('birthday_theme', config.t || 'galaxy');
+                        
+                        // Update UI immediately
+                        document.querySelector('h1').textContent = `Happy Birthday ${config.n}`;
+                        document.querySelector('.subtitle').textContent = `Countdown to your special day, ${config.n}!`;
+                        document.title = `Happy Birthday ${config.n}`;
+                        
+                        // Apply Theme
+                        if (config.t) {
+                            /* We need to apply theme colors. This is tricky without the theme map.
+                               Let's try to infer or just set a class if we had one.
+                               For now, we rely on the JS having logic.
+                            */
+                        }
+                    }
+                } catch (e) {
+                    console.error("Invalid config data", e);
+                }
+            }
+        })();
     </script>
 </body>
 </html>
