@@ -13,11 +13,20 @@ app.use(express.json({ limit: '50mb' })); // Increased limit for base64 images
 app.use(express.static(__dirname)); // Serve static files from root
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/birthday-app')
-.then(() => console.log('✅ MongoDB Connected'))
-.catch(err => console.error('❌ MongoDB Connection Error:', err));
+const dbURI = process.env.MONGO_URL || process.env.MONGO_URI || 'mongodb://localhost:27017/birthday-app';
 
-// Schema
+console.log("⏳ Attempting to connect to MongoDB..."); // Log start attempt
+
+mongoose.connect(dbURI, {
+    serverSelectionTimeoutMS: 5000 // Timeout after 5s instead of 30s so we fail fast
+})
+.then(() => console.log('✅ MongoDB Connected Successfully'))
+.catch(err => {
+    console.error('❌ MongoDB Connection Error Details:', err.name, err.message);
+    // Continue running app but log the fatal error for Railway logs
+});
+
+// Schema definition (unchanged)
 const BirthdaySchema = new mongoose.Schema({
     recipientName: String,
     birthdayDate: String,
@@ -35,16 +44,24 @@ const BirthdaySchema = new mongoose.Schema({
 const Birthday = mongoose.model('Birthday', BirthdaySchema);
 
 // Routes
-
-// 1. Create Birthday
 app.post('/api/create', async (req, res) => {
+    // Check DB state
+    if (mongoose.connection.readyState !== 1) {
+        return res.status(500).json({ 
+            error: 'Database not connected', 
+            details: `State: ${mongoose.connection.readyState} (0=disconnected, 1=connected, 2=connecting)` 
+        });
+    }
+
     try {
+        console.log("📝 Received create request");
         const newBirthday = new Birthday(req.body);
         const saved = await newBirthday.save();
+        console.log("✅ Saved ID:", saved._id);
         res.json({ success: true, id: saved._id });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to create birthday' });
+        console.error("❌ Save Error:", err);
+        res.status(500).json({ error: 'Failed to create birthday', details: err.message });
     }
 });
 

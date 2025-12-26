@@ -288,12 +288,13 @@ function generateWebsite() {
                 </div>
             `;
         } else {
-             resultDiv.innerHTML = `<p style="color:red">Error: ${data.error || 'Failed to save'}</p>`;
+             const errorMsg = data.details ? `${data.error}: ${data.details}` : (data.error || 'Failed to save');
+             resultDiv.innerHTML = `<p style="color:red">Error: ${errorMsg}</p>`;
         }
     })
     .catch(err => {
         console.error(err);
-        resultDiv.innerHTML = `<p style="color:red">Network Error: Could not save.</p>`;
+        resultDiv.innerHTML = `<p style="color:red">Network Error: ${err.message}</p>`;
     });
 }
 
