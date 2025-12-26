@@ -192,8 +192,23 @@ function switchToBirthdayScreen() {
     }
 
     // Perform Redirect (Replace current page so back button works or _self)
-    // User requested "redirect", so we likely want to replace the current window content.
-    window.location.href = targetUrl;
+    console.log("🚀 Redirecting to:", targetUrl);
+    
+    // Show visual feedback in case redirect is slow
+    const app = document.getElementById("app");
+    if (app) {
+        app.innerHTML = `
+            <div style="text-align:center; padding:40px;">
+                <h1>🎂 It's Time! 🥳</h1>
+                <p>Opening your surprise...</p>
+                <p style="font-size:0.8rem; opacity:0.7">If not redirecting, <a href="${targetUrl}" style="color:white;text-decoration:underline">click here</a></p>
+            </div>
+        `;
+    }
+
+    setTimeout(() => {
+        window.location.href = targetUrl;
+    }, 1000); // Small delay to let them see "It's Time"
 }
 
 // ===== CONFETTI =====
