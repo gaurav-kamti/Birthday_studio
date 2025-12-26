@@ -43,10 +43,12 @@ function primeAudioOnGesture() {
 
 const overlay = document.getElementById("overlay");
 
-overlay.addEventListener("click", () => {
-  // Remove overlay
-  overlay.remove();
-});
+if (overlay) {
+  overlay.addEventListener("click", () => {
+    // Remove overlay
+    overlay.remove();
+  });
+}
 
 window.addEventListener("click", primeAudioOnGesture);
 window.addEventListener("touchend", primeAudioOnGesture);
