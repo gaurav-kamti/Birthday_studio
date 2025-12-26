@@ -305,6 +305,58 @@
       preload="auto"
     ></audio>
 
-    <script src="birthday-countdown.js"></script>
+    <script>
+        // Init Logic: Fetch Config (Name, Date) before starting countdown
+        (async function init() {
+            // Check for ID in URL path (/view/:id)
+            const pathParts = window.location.pathname.split('/');
+            const viewIndex = pathParts.indexOf('view');
+            
+            if (viewIndex !== -1 && pathParts[viewIndex + 1]) {
+                const id = pathParts[viewIndex + 1];
+                try {
+                    const res = await fetch('/api/get/' + id);
+                    if (!res.ok) throw new Error('Not found');
+                    const config = await res.json();
+                    
+                    // Store for gift page & countdown script
+                    localStorage.setItem('birthday_share_config', JSON.stringify(config));
+                    
+                    if (config.recipientName) {
+                         // Update Title
+                         document.querySelector('.title').textContent = `Countdown for ${config.recipientName}`;
+                         document.querySelector('.muted').textContent = `We’re counting down to your special day, ${config.recipientName}!`;
+                         document.title = `Happy Birthday ${config.recipientName}`;
+                         
+                         // Update Date for Countdown Script
+                         localStorage.setItem('birthday_target_date', config.birthdayDate);
+                    }
+                } catch (e) {
+                    console.error("Failed to load birthday:", e);
+                }
+            } 
+            // Fallback for "?data=" legacy links
+            else {
+                 const params = new URLSearchParams(window.location.search);
+                 const data = params.get('data');
+                 if(data) {
+                     try {
+                        const json = decodeURIComponent(escape(atob(data)));
+                        const config = JSON.parse(json);
+                        localStorage.setItem('birthday_share_config', JSON.stringify(config));
+                        if(config.n) {
+                             document.querySelector('.title').textContent = `Countdown for ${config.n}`;
+                             localStorage.setItem('birthday_target_date', config.d);
+                        }
+                     } catch(e){}
+                 }
+            }
+            
+            // Load main script NOW (after config is ready)
+            const script = document.createElement('script');
+            script.src = "birthday-countdown.js";
+            document.body.appendChild(script);
+        })();
+    </script>
   </body>
 </html>

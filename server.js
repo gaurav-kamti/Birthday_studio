@@ -77,9 +77,9 @@ app.get('/api/get/:id', async (req, res) => {
 });
 
 // 3. View Routing (SPA Handle)
-// If checking a specific ID, serve index.html. The font-end will parse the ID from URL.
+// If checking a specific ID, serve birthday-countdown.html (The actual surprise page)
 app.get('/view/:id', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.sendFile(path.join(__dirname, 'birthday-countdown.html'));
 });
 
 // Start Server

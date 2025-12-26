@@ -53,12 +53,7 @@ function applyConfig() {
     const configTheme = config.theme || config.t;
     // ... (logic continues below, we wrap it)
 
-const configTheme = config.theme || config.t;
-if (configTheme && themeColors[configTheme]) {
-    const t = themeColors[configTheme];
-    document.documentElement.style.setProperty('--accent-pink', t.primary);
-    document.documentElement.style.setProperty('--accent-pink-2', t.secondary);
-}
+
 
 // 4. Hydrate Content
 const rName = config.recipientName || config.n;
