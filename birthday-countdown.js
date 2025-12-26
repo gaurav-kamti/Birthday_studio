@@ -185,15 +185,26 @@ function switchToBirthdayScreen() {
     giftBtn.addEventListener("click", () => {
       musicAfter.pause();
       startConfettiContinuous();
-      // Pass the config to gift.html? Or relies on localStorage?
-      // Since gift.html is separate, we need to pass data.
-      // If we are in "Link Mode", we should open gift.html?data=...
-      const params = new URLSearchParams(window.location.search);
-      const data = params.get('data');
-      if (data) {
-          window.open("gift.html?data=" + data, "_blank");
-      } else {
-          window.open("gift.html", "_blank");
+      // Logic to determine how to open gift page
+      // 1. Check if we are in a "/view/:id" route (Database mode)
+      const pathParts = window.location.pathname.split('/');
+      const viewIndex = pathParts.indexOf('view');
+      
+      if (viewIndex !== -1 && pathParts[viewIndex + 1]) {
+          const id = pathParts[viewIndex + 1];
+          // Open gift.html with id param
+          window.open("gift.html?id=" + id, "_blank");
+      } 
+      // 2. Check for legacy ?data= param
+      else {
+          const params = new URLSearchParams(window.location.search);
+          const data = params.get('data');
+          if (data) {
+              window.open("gift.html?data=" + data, "_blank");
+          } else {
+              // 3. Fallback (Local Preview or plain open)
+              window.open("gift.html", "_blank");
+          }
       }
     });
   }

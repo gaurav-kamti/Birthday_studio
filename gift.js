@@ -10,16 +10,28 @@ const themeColors = {
 };
 
 // 2. Parse URL/Storage Config
-function getAppConfig() {
+async function getAppConfig() {
     const params = new URLSearchParams(window.location.search);
+    
+    // A. Check for Database ID (?id=...)
+    const id = params.get('id');
+    if (id) {
+        try {
+            const res = await fetch('/api/get/' + id);
+            if (res.ok) return await res.json();
+        } catch (e) { console.error("API load failed", e); }
+    }
+
+    // B. Check for Legacy Data (?data=...)
     const data = params.get('data');
     if (data) {
         try {
             const json = decodeURIComponent(escape(atob(data)));
             return JSON.parse(json);
-        } catch (e) { console.error(e); }
+        } catch (e) { }
     }
-    // Fallback to localStorage from index.html (if navigated from there)
+    
+    // C. Fallback to localStorage from index.html (if navigated from there)
     try {
         const stored = localStorage.getItem('birthday_share_config');
         if (stored) return JSON.parse(stored);
@@ -27,9 +39,20 @@ function getAppConfig() {
     return null;
 }
 
-const config = getAppConfig() || {};
+// Global config container
+let config = {};
 
-// 3. Apply Theme
+// Initialization
+async function initGift() {
+    config = (await getAppConfig()) || {};
+    applyConfig();
+}
+
+function applyConfig() {
+    // 3. Apply Theme
+    const configTheme = config.theme || config.t;
+    // ... (logic continues below, we wrap it)
+
 const configTheme = config.theme || config.t;
 if (configTheme && themeColors[configTheme]) {
     const t = themeColors[configTheme];
@@ -392,9 +415,16 @@ document.querySelectorAll(".next-btn").forEach((btn) => {
 });
 
 /* ---- Start ---- */
-document.getElementById("st1").addEventListener("click", (e) => {
-  if (currentStage === 1 && bgm.paused) bgm.play(); // start BGM on first click
-  spawnConfettiBurst(e.clientX, e.clientY, 20);
-});
-showStage(1);
-startMemeStage();
+
+// ... (The previous code ends with event listeners)
+
+    document.getElementById("st1").addEventListener("click", (e) => {
+      if (currentStage === 1 && bgm.paused) bgm.play(); // start BGM on first click
+      spawnConfettiBurst(e.clientX, e.clientY, 20);
+    });
+    showStage(1);
+    startMemeStage();
+} // End applyConfig
+
+// Start the app
+initGift();
