@@ -244,8 +244,8 @@ function generateWebsite() {
     collectFriendMessages();
     
     // Generate both pages
-    const giftHTML = generateGiftHTML(recipientName, creatorName, poem, letter, friends, uploadedFiles.photos, uploadedFiles.memes, uploadedFiles.musicAfter, birthdayDate);
-    const indexHTML = generateIndexHTML(recipientName, birthdayDate, creatorName, giftHTML);
+    const giftHTML = generateGiftHTML(recipientName, creatorName, poem, letter, friends, uploadedFiles.photos, uploadedFiles.memes, uploadedFiles.musicAfter, birthdayDate, selectedTheme);
+    const indexHTML = generateIndexHTML(recipientName, birthdayDate, creatorName, giftHTML, selectedTheme);
     
     // Open new window and write content
     generatedWindow = window.open('', '_blank');
@@ -289,7 +289,7 @@ function showPreview() {
 }
 
 
-function generateIndexHTML(recipientName, birthdayDate, creatorName, giftHTMLContent) {
+function generateIndexHTML(recipientName, birthdayDate, creatorName, giftHTMLContent, selectedTheme) {
     const musicBeforeSrc = uploadedFiles.musicBefore || '';
     const musicOnTimeSrc = uploadedFiles.musicOnTime || '';
     const musicAfterSrc = uploadedFiles.musicAfter || '';
@@ -297,6 +297,8 @@ function generateIndexHTML(recipientName, birthdayDate, creatorName, giftHTMLCon
     // Use btoa to encode the gift HTML as base64
     const giftHTMLBase64 = btoa(unescape(encodeURIComponent(giftHTMLContent)));
     
+    const colors = themeColors[selectedTheme] || themeColors.galaxy;
+
     return '<!DOCTYPE html>' +
 '<html lang="en">' +
 '<head>' +
@@ -304,7 +306,7 @@ function generateIndexHTML(recipientName, birthdayDate, creatorName, giftHTMLCon
 '<meta name="viewport" content="width=device-width, initial-scale=1">' +
 '<title>Happy Birthday ' + recipientName + '</title>' +
 '<style>' +
-':root{--bg:#0f0f14;--card:#171a27;--text:#f7f7fb;--muted:#b7b7c9;--accent:#ff6b9e;--accent2:#7cf6d7}' +
+':root{--bg:#0f0f14;--card:#171a27;--text:#f7f7fb;--muted:#b7b7c9;--accent:' + colors.primary + ';--accent2:' + colors.secondary + '}' +
 'html,body{height:100%}' +
 'body{margin:0;background:radial-gradient(1200px 1200px at 50% -200px,#1c2034,#0f0f14);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;overflow:hidden}' +
 '.center-wrap{position:relative;height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}' +
@@ -410,7 +412,7 @@ function generateIndexJS(birthdayDate, recipientName, creatorName, giftHTMLBase6
 }
 
 
-function generateGiftHTML(recipientName, creatorName, poem, letter, friends, photos, memes, musicAfterSrc, birthdayDate) {
+function generateGiftHTML(recipientName, creatorName, poem, letter, friends, photos, memes, musicAfterSrc, birthdayDate, selectedTheme) {
     // Generate arrays as strings for embedding in JS
     let memesArrayStr = '[';
     for (let i = 0; i < memes.length; i++) {
@@ -436,6 +438,8 @@ function generateGiftHTML(recipientName, creatorName, poem, letter, friends, pho
     const poemEscaped = poem.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
     const letterEscaped = letter.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
     
+    const colors = themeColors[selectedTheme] || themeColors.galaxy;
+
     return '<!DOCTYPE html>' +
 '<html lang="en">' +
 '<head>' +
@@ -443,7 +447,7 @@ function generateGiftHTML(recipientName, creatorName, poem, letter, friends, pho
 '<meta name="viewport" content="width=device-width,initial-scale=1">' +
 '<title>Birthday Gift — Surprise</title>' +
 '<style>' +
-':root{--bg1:#fff0f7;--accent-pink:#ff9bbd;--accent-pink-2:#ffc4d6;--muted:#6b6b78;--card:#ffffffcc}' +
+':root{--bg1:#fff0f7;--accent-pink:' + colors.primary + ';--accent-pink-2:' + colors.secondary + ';--muted:#6b6b78;--card:#ffffffcc}' +
 '*{box-sizing:border-box}' +
 'body{margin:0;min-height:100vh;font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,#fff6fb 0%,#fff0f5 100%);color:#222;overflow-x:hidden}' +
 '.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}' +

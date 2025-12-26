@@ -1,4 +1,10 @@
-const TARGET = new Date("2025-08-28T15:15:00");
+// Set target to tomorrow at 3:15 PM for demo purposes
+const now = new Date();
+const tomorrow = new Date(now);
+tomorrow.setDate(now.getDate() + 1);
+tomorrow.setHours(15, 15, 0, 0);
+
+const TARGET = tomorrow;
 const ONTIME_DURATION = 30 * 1000;
 
 const musicBefore = document.getElementById("musicBefore");
@@ -93,26 +99,31 @@ function renderCountdown(diffMs) {
     submitBtn.textContent = "Sending…";
 
     try {
-      const res = await fetch("/.netlify/functions/saveMessage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, message }),
+      // Use LocalStorage for demo purposes instead of Netlify
+      // const res = await fetch("/.netlify/functions/saveMessage", ...);
+      
+      const DEMO_KEY = "birthday_demo_messages";
+      const messages = JSON.parse(localStorage.getItem(DEMO_KEY) || "[]");
+      messages.push({
+          name: name,
+          message: message,
+          createdAt: new Date().toISOString()
       });
+      localStorage.setItem(DEMO_KEY, JSON.stringify(messages));
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to send");
-      }
+      // Simulate network delay
+      await new Promise(r => setTimeout(r, 800));
 
       form.reset();
       updateCounter();
       noteEl.hidden = false;
-      noteEl.textContent = "Thanks! Your wish is saved 💖";
+      noteEl.textContent = "Thanks! Your wish is saved 💖 (Demo Mode)";
       submitBtn.textContent = "Sent ✅";
       setTimeout(() => {
         submitBtn.textContent = "Send Wish 💌";
         submitBtn.disabled = false;
-      }, 1500);
+        noteEl.hidden = true;
+      }, 2000);
     } catch (err) {
       noteEl.hidden = false;
       noteEl.textContent = "Couldn’t send. Please try again.";
