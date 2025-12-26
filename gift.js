@@ -56,22 +56,47 @@ function applyConfig() {
 
 
 // 4. Hydrate Content
-const rName = config.recipientName || config.n;
-if (rName) {
-    // Update recipient name in DOM if it exists (stage 1 & 6)
+    const rName = config.recipientName || config.n;
+    if (rName) {
+        // Update recipient name in DOM
+        document.querySelectorAll('h1').forEach(h => {
+             if(h.textContent.includes('Tulip')) h.textContent = h.textContent.replace('Tulip', rName);
+        });
+    }
+
+    // 5. Apply Text Content (Poem, Letter)
+    if (config.poem) poemText = config.poem;
+    if (config.letter) letterText = config.letter;
+    
+    // 6. Apply Media (Music, Photos, Memes)
+    if (config.musicAfter) {
+        const bgm = document.getElementById("bgmSong");
+        if(bgm) bgm.src = config.musicAfter;
+    }
+    
+    if (config.photos && config.photos.length > 0) {
+        // Map base64 strings to objects expected by gallery
+        photos = config.photos.map(p => ({ src: p, caption: "Beautiful Memory 💖" }));
+    }
+    
+    if (config.memes && config.memes.length > 0) {
+        memes = config.memes;
+    }
+    
+    if (config.friends && config.friends.length > 0) {
+        friendMessages = config.friends.map(f => ({
+            name: f.name,
+            text: f.message,
+            createdAt: new Date().toISOString()
+        }));
+    }
+
+    // FINAL: Unhide the page
     setTimeout(() => {
-       const h1s = document.querySelectorAll('h1');
-       h1s.forEach(h => {
-           if(h.textContent.includes('Tulip')) h.textContent = h.textContent.replace('Tulip', rName);
-       });
+        const wrap = document.querySelector('.wrap');
+        if(wrap) wrap.style.opacity = '1';
     }, 100);
 }
-
-
-const bgm = document.getElementById("bgmSong");
-// your one BGM file
-bgm.loop = true;
-bgm.volume = 0.45; // adjust loudness
 
 const memes = [
   "image/adorable-cute.gif",

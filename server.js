@@ -38,6 +38,9 @@ const BirthdaySchema = new mongoose.Schema({
     // Large assets stored as base64 strings
     photos: [String],
     memes: [String],
+    musicBefore: String,
+    musicOnTime: String,
+    musicAfter: String,
     createdAt: { type: Date, default: Date.now }
 });
 
